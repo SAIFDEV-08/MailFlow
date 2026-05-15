@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="shortcut icon" type="image/png" href="logo.png">
+  <title>MailFlow | Admin Dashboard</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  />
+</head>
+
+<body class="bg-slate-50 font-sans overflow-x-hidden">
+
+  <div class="flex min-h-screen">
+
+    <!-- MOBILE OVERLAY -->
+    <div
+      id="overlay"
+      class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden"
+      onclick="toggleSidebar()">
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside
+      id="sidebar"
+      class="fixed lg:static top-0 left-0 z-50 w-64 h-screen bg-indigo-900 text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col shadow-xl">
+
+      <!-- LOGO -->
+      <div class="p-6 text-2xl font-bold border-b border-indigo-800 flex justify-between items-center">
+        MailFlow
+
+        <!-- CLOSE BUTTON -->
+        <button
+          class="lg:hidden text-white"
+          onclick="toggleSidebar()">
+
+          <i class="fas fa-times"></i>
+
+        </button>
+      </div>
+
+      <!-- NAVIGATION -->
+      <nav class="flex-1 p-4 space-y-2">
+
+        <a
+          href="/"
+          class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800 transition">
+
+          <i class="fas fa-paper-plane"></i>
+          <span>Send Email</span>
+
+        </a>
+
+        <a
+          href="/professionaldashboard.html"
+          class="flex items-center gap-3 p-3 rounded-lg bg-indigo-700 shadow-inner">
+
+          <i class="fas fa-chart-line"></i>
+          <span>Dashboard</span>
+
+        </a>
+
+      </nav>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 w-full p-4 sm:p-6 lg:p-10">
+
+      <!-- HEADER -->
+      <header class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
+
+        <div class="flex items-start gap-3">
+
+          <!-- MENU BUTTON -->
+          <button
+            class="lg:hidden bg-white border border-slate-200 p-3 rounded-lg shadow-sm"
+            onclick="toggleSidebar()">
+
+            <i class="fas fa-bars text-indigo-600"></i>
+
+          </button>
+
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">
+              Analytics Overview
+            </h1>
+
+            <p
+              class="text-slate-500 text-sm"
+              id="currentDate">
+            </p>
+          </div>
+
+        </div>
+
+        <!-- REFRESH -->
+        <button
+          onclick="fetchLogs()"
+          class="bg-white border border-slate-200 text-indigo-600 px-4 py-3 rounded-lg font-semibold text-sm hover:bg-slate-50 transition flex items-center justify-center shadow-sm w-full sm:w-auto">
+
+          <i class="fas fa-sync-alt mr-2"></i>
+          Refresh Data
+
+        </button>
+
+      </header>
+
+      <!-- STATS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
+
+        <!-- TOTAL -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+
+          <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">
+            Total Requests
+          </p>
+
+          <div
+            class="text-3xl font-extrabold text-slate-800"
+            id="totalCount">
+
+            0
+
+          </div>
+
+        </div>
+
+        <!-- SUCCESS -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-green-500">
+
+          <p class="text-green-600 text-xs font-bold uppercase tracking-widest mb-1">
+            Success Rate
+          </p>
+
+          <div
+            class="text-3xl font-extrabold text-slate-800"
+            id="successRate">
+
+            0%
+
+          </div>
+
+        </div>
+
+        <!-- FAILED -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-red-500 sm:col-span-2 xl:col-span-1">
+
+          <p class="text-red-600 text-xs font-bold uppercase tracking-widest mb-1">
+            Failed Delivery
+          </p>
+
+          <div
+            class="text-3xl font-extrabold text-slate-800"
+            id="failCount">
+
+            0
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TABLE -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+
+        <!-- TABLE HEADER -->
+        <div class="p-6 border-b border-slate-100">
+
+          <h2 class="text-lg font-bold text-slate-800">
+            Recent Deliveries
+          </h2>
+
+        </div>
+
+        <!-- TABLE -->
+        <div class="overflow-x-auto">
+
+          <table class="w-full min-w-[650px]">
+
+            <thead class="bg-slate-50">
+
+              <tr>
+
+                <th class="p-4 text-left text-xs font-bold text-slate-400 uppercase">
+                  Recipient
+                </th>
+
+                <th class="p-4 text-left text-xs font-bold text-slate-400 uppercase">
+                  Subject
+                </th>
+
+                <th class="p-4 text-left text-xs font-bold text-slate-400 uppercase">
+                  Status
+                </th>
+
+                <th class="p-4 text-right text-xs font-bold text-slate-400 uppercase">
+                  Action
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody
+              id="logTableBody"
+              class="divide-y divide-slate-100">
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+
+    // AUTH CHECK
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+
+      window.location.href = '/login.html';
+
+    }
+
+    // DATE
+    document.getElementById('currentDate').innerText =
+      new Date().toDateString();
+
+    // SIDEBAR TOGGLE
+    function toggleSidebar() {
+
+      const sidebar =
+        document.getElementById('sidebar');
+
+      const overlay =
+        document.getElementById('overlay');
+
+      sidebar.classList.toggle('-translate-x-full');
+
+      overlay.classList.toggle('hidden');
+
+    }
+
+    // FETCH LOGS
+    async function fetchLogs() {
+
+      try {
+
+        const token =
+          localStorage.getItem('token');
+
+        const res =
+          await fetch('/api/email/logs', {
+
+            headers: {
+              'x-auth-token': token
+            }
+
+          });
+
+        const logs = await res.json();
+
+        // TOTAL
+        const total = logs.length;
+
+        // FAILED
+        const failed =
+          logs.filter(
+            log => log.status === 'FAILED'
+          ).length;
+
+        // SUCCESS %
+        const success =
+          total > 0
+            ? (
+                (
+                  (total - failed) / total
+                ) * 100
+              ).toFixed(1)
+            : 0;
+
+        // UPDATE STATS
+        document.getElementById('totalCount').innerText =
+          total;
+
+        document.getElementById('failCount').innerText =
+          failed;
+
+        document.getElementById('successRate').innerText =
+          success + '%';
+
+        // TABLE BODY
+        const tbody =
+          document.getElementById('logTableBody');
+
+        // EMPTY STATE
+        if (!logs.length) {
+
+          tbody.innerHTML = `
+            <tr>
+
+              <td
+                colspan="4"
+                class="p-8 text-center text-slate-400">
+
+                No email logs found
+
+              </td>
+
+            </tr>
+          `;
+
+          return;
+
+        }
+
+        // TABLE ROWS
+        tbody.innerHTML = logs.map(log => {
+
+          const isSent =
+            log.status === 'SENT';
+
+          return `
+
+            <tr
+              class="hover:bg-slate-50/50 transition"
+              id="row-${log._id}">
+
+              <!-- RECIPIENT -->
+              <td class="p-4">
+
+                <div
+                  class="font-medium text-slate-700 truncate max-w-[180px]">
+
+                  ${log.recipient}
+
+                </div>
+
+              </td>
+
+              <!-- SUBJECT -->
+              <td
+                class="p-4 text-slate-500 text-sm italic">
+
+                ${log.subject}
+
+              </td>
+
+              <!-- STATUS -->
+              <td class="p-4">
+
+                <span
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold
+                  ${
+                    isSent
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
+                  }">
+
+                  ${
+                    isSent
+                      ? 'SENT'
+                      : 'FAILED'
+                  }
+
+                </span>
+
+              </td>
+
+              <!-- DELETE -->
+              <td class="p-4 text-right">
+
+                <button
+                  onclick="deleteLog('${log._id}')"
+                  class="text-slate-300 hover:text-red-500 transition px-2">
+
+                  <i class="fas fa-trash-alt"></i>
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }).join('');
+
+      }
+
+      catch (err) {
+
+        console.error(
+          "Failed to load logs",
+          err
+        );
+
+      }
+
+    }
+
+    // DELETE LOG
+    async function deleteLog(id) {
+
+      const confirmDelete =
+        confirm(
+          "Are you sure you want to delete this log?"
+        );
+
+      if (!confirmDelete) return;
+
+      try {
+
+        const token =
+          localStorage.getItem('token');
+
+        const res =
+          await fetch(`/api/email/logs/${id}`, {
+
+            method: 'DELETE',
+
+            headers: {
+              'x-auth-token': token
+            }
+
+          });
+
+        const data =
+          await res.json();
+
+        // SUCCESS
+        if (data.success) {
+
+          fetchLogs();
+
+        }
+
+        // ERROR
+        else {
+
+          alert(data.msg);
+
+        }
+
+      }
+
+      catch (err) {
+
+        console.error(
+          "Delete failed",
+          err
+        );
+
+      }
+
+    }
+
+    // INITIAL LOAD
+    fetchLogs();
+
+  </script>
+
+</body>
+</html>

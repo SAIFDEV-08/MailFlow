@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+    <title>MailFlow - Send Email</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 class="text-2xl font-bold mb-6 text-indigo-600">Send Email</h2>
+        <form id="emailForm" class="space-y-4">
+            <input type="email" id="to" placeholder="Recipient Email" class="w-full p-2 border rounded" required>
+            <input type="text" id="subject" placeholder="Subject" class="w-full p-2 border rounded" required>
+            <textarea id="message" placeholder="Your Message" class="w-full p-2 border rounded h-32"></textarea>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Send Now</button>
+        </form>
+        <p id="response" class="mt-4 text-center text-sm font-medium"></p>
+    </div>
+
+    <script>
+        document.getElementById('emailForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const responseEl = document.getElementById('response');
+            responseEl.innerText = "Sending...";
+
+            const data = {
+                to: document.getElementById('to').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+
+            const res = await fetch('/api/email/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+            responseEl.innerText = result.msg;
+            responseEl.style.color = result.success ? 'green' : 'red';
+        };
+    </script>
+</body>
+</html>
